@@ -6,6 +6,9 @@ from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
 from webdriver_manager.chrome import ChromeDriverManager
 
+from src.repository.coupang_repository import saveCoupangData
+
+
 def run():
     coupangData = [
         {
@@ -62,7 +65,7 @@ def run():
         coupangData.append(categoryAndProducts)
         driver.close()
 
-    print(coupangData)
+    saveCoupangData(coupangData)
 
 
 
