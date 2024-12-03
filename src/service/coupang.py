@@ -27,27 +27,43 @@ def run():
     driver.maximize_window()
     sleep(2)
 
-    category = driver.find_element(by=By.CSS_SELECTOR, value='#searchOptionForm > div > div > div.newcx-main > h1').text
-    print(category)
+    categoryCodeList = []
 
-    ul = driver.find_element(by=By.CSS_SELECTOR, value="#productList")
-    dlList = ul.find_elements(by=By.CSS_SELECTOR, value="li > a > dl")
-    for dl in dlList:
-        driver.execute_script("arguments[0].scrollIntoView()", dl)
-        productName = dl.find_element(by=By.CSS_SELECTOR, value="dd > div:nth-of-type(2)").text
-        price = dl.find_element(by=By.CSS_SELECTOR, value="dd > div:nth-of-type(3) .price-value").text
-        productImgUrl = dl.find_element(by=By.CSS_SELECTOR, value="dt > img").get_attribute("src")
-        newProduct = {
-            "productName": productName,
-            "price": price,
-            "productImgUrl": productImgUrl
+    categoryUl = driver.find_element(by=By.CSS_SELECTOR, value="#searchCategoryComponent > ul")
+    categoryLis = categoryUl.find_elements(by=By.CSS_SELECTOR, value="& > li")
+    for li in categoryLis:
+        categoryCodeList.append(li.get_attribute("data-linkcode"))
+
+    driver.close()
+
+    for categoryCode in categoryCodeList[:4]:
+        driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()))
+        driver.get(f"https://www.coupang.com/np/categories/{categoryCode}")
+        driver.maximize_window()
+        sleep(1)
+        category = driver.find_element(by=By.CSS_SELECTOR, value='#searchOptionForm > div > div > div.newcx-main > h1').text
+        categoryAndProducts = {
+            "category": category,
+            "products": []
         }
-        coupangData.append(newProduct)
+        ul = driver.find_element(by=By.CSS_SELECTOR, value="#productList")
+        dlList = ul.find_elements(by=By.CSS_SELECTOR, value="li > a > dl")
+        for dl in dlList:
+            driver.execute_script("arguments[0].scrollIntoView()", dl)
+            productName = dl.find_element(by=By.CSS_SELECTOR, value="dd > div:nth-of-type(2)").text
+            price = dl.find_element(by=By.CSS_SELECTOR, value="dd > div:nth-of-type(3) .price-value").text
+            productImgUrl = dl.find_element(by=By.CSS_SELECTOR, value="dt > img").get_attribute("src")
+            newProduct = {
+                "productName": productName,
+                "price": price,
+                "productImgUrl": productImgUrl
+            }
+            categoryAndProducts["products"].append(newProduct)
+        coupangData.append(categoryAndProducts)
+        driver.close()
 
-        print(f"""
-상품명: {productName}
-가격: {price}
-상품이미지: {productImgUrl}
-""")
+    print(coupangData)
+
+
 
 
