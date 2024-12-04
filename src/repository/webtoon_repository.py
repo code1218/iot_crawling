@@ -1,6 +1,12 @@
 import pymysql
 
 if __name__ == "__main__":
+    testSet1 = {'1', '2'}
+    testSet2 = {'1', '2', '3'}
+    testSet1.update(testSet2)
+    print(testSet1)
+
+
     categoryId = 1
     webtoons = [
         {
@@ -12,11 +18,45 @@ if __name__ == "__main__":
             "author": "SIU"
         },
     ]
+    i = 0
     values = ""
     for webtoon in webtoons:
-        pass
+        values += f"(default, \'{webtoon['title']}\', \'{webtoon['author']}\')"
+        if i != len(webtoons) - 1:
+            values += ", "
+        i += 1
     print(values)
-    #(default, '똑 닮은 딸', '이담', 1), (default, '신의 탑', 'SIU', 1)
+
+    def convert(webtoon: dict, categoryId: int):
+        return f"(default, \'{webtoon['title']}\', \'{webtoon['author']}\', {categoryId})"
+
+    values = ""
+    i = 0
+    for webtoon in webtoons:
+        values += convert(webtoon, categoryId)
+        if i != len(webtoons) - 1:
+            values += ", "
+        i += 1
+    print(values)
+
+    values = ""
+    valueList = []
+    for webtoon in webtoons:
+        valueList.append(convert(webtoon, categoryId))
+    print(", ".join(valueList))
+
+    cv = lambda webtoon: f"(default, \'{webtoon['title']}\', \'{webtoon['author']}\', {categoryId})"
+    valueList = list(map(cv, webtoons))
+    values = ", ".join(valueList)
+    print(values)
+
+    values = ", ".join(list(map(cv, webtoons)))
+    print("insert into aaaa_tb values" + values)
+
+    result = ",".join(["가나", "다라"])
+    print(result)
+
+# (default, '똑 닮은 딸', '이담', 1), (default, '신의 탑', 'SIU', 1)
 
 
 
@@ -88,13 +128,35 @@ def saveWebtoon(webtoonDict: dict, categoryId: int):
 
 
 
+def saveAuthor(webtoonDataList: list):
 
+    authorList = []
+    authorSet = set()
+    for webtoonData in webtoonDataList:
+        for webtoon in webtoonData['webtoons']:
+            authorSet.update(webtoon['author'].split(" / "))
+    authorList = list(authorSet)
+    try:
+        connection = pymysql.connect(host='localhost', port=3306, user='root', passwd='root', db='naver_webtoon_db')
+        try:
+            cursor = connection.cursor()
+            values = ",\n".join(list(map(lambda author: f"(default, \'{author}\')", authorList)))
+            sql = f"insert into author_tb values" + values
+            cursor.execute(sql)
+            connection.commit()
+        except Exception as e:
+            print(e) #SQL 오류
+        finally:
+            connection.close()
+
+    except Exception as e:
+        print("데이터베이스 연결 실패")
 
 
 
 def saveWebtoonDataList(webtoonDataList: list):
     try:
-        connection = pymysql.connect(host='localhost', port=3306, user='root', passwd='root', db='coupang_db')
+        connection = pymysql.connect(host='localhost', port=3306, user='root', passwd='root', db='naver_webtoon_db')
         try:
             cursor = connection.cursor()
             for data in webtoonDataList:

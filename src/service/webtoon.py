@@ -5,7 +5,7 @@ from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
 from webdriver_manager.chrome import ChromeDriverManager
-from src.repository.webtoon_repository import save
+from src.repository.webtoon_repository import save, saveWebtoonDataList, saveAuthor
 
 def run():
     webtoonDataList = [
@@ -72,7 +72,8 @@ def run():
         webtoonDataList.append(webtoonDataOfCategory)
 
     print(webtoonDataList)
-    save(webtoonDataList)
+    # saveWebtoonDataList(webtoonDataList)
+    saveAuthor(webtoonDataList)
 
 
 
