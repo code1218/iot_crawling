@@ -7,24 +7,73 @@ from selenium.webdriver.common.by import By
 from webdriver_manager.chrome import ChromeDriverManager
 
 def run():
+    webtoonDataList = [
+        {
+            "categoryName": "월",
+            "webtoons": [
+                {
+                    "title": "참교육",
+                    "author": "채용택 / 한가람",
+                    "rating": 9.89,
+                    "imgUrl": "https://~~~~~~"
+                },
+                {
+                    "title": "똑 닮은 딸",
+                    "author": "이담",
+                    "rating": 9.98,
+                    "imgUrl": "https://~~~~~~"
+                }
+            ]
+        }
+    ]
+
+    webtoonDataList.clear()
+
     driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()))
 
     driver.get("https://comic.naver.com/webtoon")
+    driver.maximize_window()
     sleep(1)
 
-    days = driver.find_elements(
+    categoryLis = driver.find_elements(
         by=By.CSS_SELECTOR,
-        value='#wrap > header > div.SubNavigationBar__snb_wrap--A5gfM > nav > ul > li > a'
+        value='#wrap > header > div.SubNavigationBar__snb_wrap--A5gfM > nav > ul > li'
     )
 
-    for day in days[1:8]:
-        driver.execute_script("arguments[0].scrollIntoView(true);", day)
-        day.click()
-        print(day.text)
+    for categoryLi in categoryLis[1:8]:
+        categoryLink = categoryLi.find_element(by=By.CSS_SELECTOR, value="& > a")
+        categoryLink.click()
+        sleep(0.5)
 
-        webtoonTitles = driver.find_elements(by=By.CSS_SELECTOR, value='#content > div:nth-child(1) > ul > li > div > a > span')
-        for webtoonTitle in webtoonTitles:
-            print(webtoonTitle.text)
+        webtoonDataOfCategory = {
+            "categoryName": categoryLink.text,
+            "webtoons": []
+        }
+
+        webtoonLis = driver.find_elements(by=By.CSS_SELECTOR, value="#content > div:nth-child(1) > ul > li")
+        for webtoonLi in webtoonLis:
+            driver.execute_script("arguments[0].scrollIntoView(true);", webtoonLi)
+            img = webtoonLi.find_element(by=By.CSS_SELECTOR, value="& > a > div > img")
+            imgSrc = img.get_attribute("src")
+            title = webtoonLi.find_element(by=By.CSS_SELECTOR, value="& > div > a:nth-of-type(1)")
+            titleText = title.text
+            author = webtoonLi.find_element(by=By.CSS_SELECTOR, value="& > div .ContentAuthor__author--CTAAP")
+            authorText = author.text
+            rating = webtoonLi.find_element(by=By.CSS_SELECTOR, value="& > div > div:nth-last-of-type(1) > span > span")
+            ratingText = rating.text
+            webtoon = {
+                "title": titleText,
+                "author": authorText,
+                "rating": float(ratingText),
+                "imgUrl": imgSrc
+            }
+            webtoonDataOfCategory["webtoons"].append(webtoon)
+        webtoonDataList.append(webtoonDataOfCategory)
+
+    print(webtoonDataList)
+
+
+
 
 def run3():
     driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()))
