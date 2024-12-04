@@ -5,6 +5,7 @@ from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
 from webdriver_manager.chrome import ChromeDriverManager
+from src.repository.webtoon_repository import save
 
 def run():
     webtoonDataList = [
@@ -40,7 +41,7 @@ def run():
         value='#wrap > header > div.SubNavigationBar__snb_wrap--A5gfM > nav > ul > li'
     )
 
-    for categoryLi in categoryLis[1:8]:
+    for categoryLi in categoryLis[1:3]:
         categoryLink = categoryLi.find_element(by=By.CSS_SELECTOR, value="& > a")
         categoryLink.click()
         sleep(0.5)
@@ -71,6 +72,7 @@ def run():
         webtoonDataList.append(webtoonDataOfCategory)
 
     print(webtoonDataList)
+    save(webtoonDataList)
 
 
 
