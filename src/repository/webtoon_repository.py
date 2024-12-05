@@ -139,7 +139,7 @@ def saveAuthor(webtoonDataList: list):
     try:
         connection = pymysql.connect(host='localhost', port=3306, user='root', passwd='root', db='naver_webtoon_db')
         try:
-            cursor = connection.cursor()
+            cursor = connection.cursor(cursor=pymysql.cursors.DictCursor)
             values = ",\n".join(list(map(lambda author: f"(default, \'{author}\')", authorList)))
             sql = f"insert into author_tb values" + values
             cursor.execute(sql)

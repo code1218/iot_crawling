@@ -5,7 +5,15 @@ from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
 from webdriver_manager.chrome import ChromeDriverManager
 
+from src.repository.tms_repository import findWebtoonByTitle
+
+
 def run():
+    title = input("웹툰 제목을 입력하세요: ")
+    foundWebtoon = findWebtoonByTitle(title)
+    if not foundWebtoon:
+        return
+
     driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()))
     driver.get('https://koritbs.cafe24.com/teacher/index.php')
     sleep(1)
